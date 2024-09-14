@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AspRestApiTest.Areas.User.Models
+namespace AspRestApiTest.Areas.User.Schemas
 {
     public class VJournalFilter
     {

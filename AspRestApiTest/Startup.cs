@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 namespace AspRestApiTest
 {
+    using AspRestApiTest.Data;
     using AspRestApiTest.Features.Logger;
 
     public class Startup
@@ -36,10 +38,13 @@ namespace AspRestApiTest
                 });
             });
 
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddControllers();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -54,6 +59,8 @@ namespace AspRestApiTest
 
             app.UseRouting();
             app.UseAuthorization();
+
+            dbContext.Database.Migrate();
 
             app.UseEndpoints(endpoints =>
             {

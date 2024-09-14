@@ -3,6 +3,7 @@
 namespace AspRestApiTest.Areas.User.Controllers.Partner
 {
     [Area("User")]
+    [Route("api/[area]/[controller]")]
     public class PartnerController : Controller
     {
         [HttpPost("rememberMe")]
