@@ -2,6 +2,8 @@
 
 namespace AspRestApiTest.Data.Models
 {
+    using AspRestApiTest.Areas.User.Models;
+
     public class Node
     {
         public int Id { get; set; }
@@ -18,5 +20,15 @@ namespace AspRestApiTest.Data.Models
         public ICollection<Node> ChildNodes { get; set; }
 
         public Tree Tree { get; set; }
+
+        public MNode ToMNode()
+        {
+            return new MNode
+            {
+                Id = Id,
+                Name = Name,
+                Children = new List<MNode>()
+            };
+        }
     }
 }

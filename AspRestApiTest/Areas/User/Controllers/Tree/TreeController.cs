@@ -41,12 +41,11 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree
                 _context.Nodes.Add(rootNode);
                 await _context.SaveChangesAsync();
 
-                return Ok(ConvertToMNode(rootNode));
+                return Ok(rootNode.ToMNode());
             }
 
             var existingRootNode = await _context.Nodes
                 .Where(n => n.TreeId == tree.Id && n.ParentNodeId == null)
-                .Include(n => n.ChildNodes)
                 .FirstOrDefaultAsync();
 
             if (existingRootNode is null)
@@ -54,17 +53,26 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree
                 return NotFound(new { Message = $"Root node for tree {treeName} not found." });
             }
 
-            return Ok(ConvertToMNode(existingRootNode));
+            var result = await LoadFullNodeHierarchy(existingRootNode);
+
+            return Ok(result);
         }
 
-        private MNode ConvertToMNode(Data.Models.Node node)
+        private async Task<MNode> LoadFullNodeHierarchy(Data.Models.Node node)
         {
-            return new MNode
+            var mNode = node.ToMNode();
+
+            var childNodes = await _context.Nodes
+                .Where(n => n.ParentNodeId == node.Id)
+                .ToListAsync();
+
+            foreach (var childNode in childNodes)
             {
-                Id = node.Id,
-                Name = node.Name,
-                Children = node.ChildNodes?.Select(ConvertToMNode).ToList() ?? new List<MNode>()
-            };
+                var childMNode = await LoadFullNodeHierarchy(childNode);
+                mNode.Children.Add(childMNode);
+            }
+
+            return mNode;
         }
     }
 }
