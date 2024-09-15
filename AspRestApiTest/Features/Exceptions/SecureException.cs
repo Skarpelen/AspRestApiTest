@@ -2,12 +2,22 @@
 {
     public class SecureException : Exception
     {
-        public SecureException(string message) : base(message)
+        public string QueryParameters { get; set; }
+
+        public string BodyParameters { get; set; }
+
+        public SecureException(string message, string queryParameters = "", string bodyParameters = "")
+            : base(message)
         {
+            QueryParameters = queryParameters;
+            BodyParameters = bodyParameters;
         }
 
-        public SecureException(string message, Exception innerException) : base(message, innerException)
+        public SecureException(string message, Exception innerException, string queryParameters = "", string bodyParameters = "")
+            : base(message, innerException)
         {
+            QueryParameters = queryParameters;
+            BodyParameters = bodyParameters;
         }
     }
 }

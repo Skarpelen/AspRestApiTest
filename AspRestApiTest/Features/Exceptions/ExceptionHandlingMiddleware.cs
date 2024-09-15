@@ -1,7 +1,9 @@
-﻿namespace AspRestApiTest.Features.Exceptions
+﻿using System.Text;
+
+namespace AspRestApiTest.Features.Exceptions
 {
-    using AspRestApiTest.Data.Models;
     using AspRestApiTest.Data;
+    using AspRestApiTest.Data.Models;
     using AspRestApiTest.Features.Logger;
 
     public class ExceptionHandlingMiddleware : IMiddleware
@@ -21,8 +23,36 @@
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex);
+                if (ex is SecureException secureException)
+                {
+                    var queryParameters = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "N/A";
+                    var bodyParameters = await GetRequestBodyAsync(context);
+                    secureException.QueryParameters = queryParameters;
+                    secureException.BodyParameters = bodyParameters;
+                    await HandleExceptionAsync(context, secureException);
+                }
+                else
+                {
+                    await HandleExceptionAsync(context, ex);
+                }
             }
+        }
+
+        private async Task<string> GetRequestBodyAsync(HttpContext context)
+        {
+            if (context.Request.ContentLength > 0)
+            {
+                context.Request.EnableBuffering();
+                context.Request.Body.Position = 0;
+                using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 1024, true))
+                {
+                    string body = await reader.ReadToEndAsync();
+                    context.Request.Body.Position = 0;
+                    return body;
+                }
+            }
+
+            return "N/A";
         }
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
@@ -31,16 +61,16 @@
             var response = new { id = eventId.ToString() };
             context.Response.ContentType = "application/json";
 
-            if (exception is SecureException)
+            if (exception is SecureException secureException)
             {
-                await LogExceptionToJournal(eventId, exception, "Secure");
+                await LogExceptionToJournal(eventId, secureException, "Secure");
 
                 context.Response.StatusCode = 500;
                 var secureResponse = new
                 {
                     type = "Secure",
                     id = eventId,
-                    data = new { message = exception.Message }
+                    data = new { message = secureException.Message }
                 };
 
                 await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(secureResponse));
@@ -74,7 +104,9 @@
                     EventId = eventId,
                     Timestamp = DateTime.UtcNow,
                     StackTrace = exception.StackTrace ?? "N/A",
-                    ExceptionType = type
+                    ExceptionType = type,
+                    QueryParameters = exception is SecureException secureExQ ? secureExQ.QueryParameters : "N/A",
+                    BodyParameters = exception is SecureException secureExB ? secureExB.BodyParameters : "N/A"
                 };
 
                 try
