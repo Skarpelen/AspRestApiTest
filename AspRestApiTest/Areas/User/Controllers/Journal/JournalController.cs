@@ -6,6 +6,7 @@ namespace AspRestApiTest.Areas.User.Controllers.Journal
     using AspRestApiTest.Areas.User.Models;
     using AspRestApiTest.Areas.User.Schemas;
     using AspRestApiTest.Data;
+    using AspRestApiTest.Features.Exceptions;
 
     [Area("User")]
     [Route("api/[area]/[controller]")]
@@ -60,11 +61,11 @@ namespace AspRestApiTest.Areas.User.Controllers.Journal
         [HttpPost("getSingle")]
         public async Task<IActionResult> GetSingle([FromQuery] long id)
         {
-            var journal = await _context.ExceptionJournals.FindAsync(id);
+            var journal = await _context.ExceptionJournals.FirstOrDefaultAsync(j => j.EventId == id);
 
-            if (journal == null)
+            if (journal is null)
             {
-                return NotFound(new { Message = $"Journal entry with ID {id} not found." });
+                throw new SecureException($"Journal entry with ID {id} not found.");
             }
 
             var result = new MJournal

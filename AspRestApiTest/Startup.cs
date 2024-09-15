@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 namespace AspRestApiTest
 {
     using AspRestApiTest.Data;
+    using AspRestApiTest.Features.Exceptions;
     using AspRestApiTest.Features.Logger;
 
     public class Startup
@@ -42,6 +43,8 @@ namespace AspRestApiTest
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
+
+            services.AddTransient<ExceptionHandlingMiddleware>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
@@ -61,6 +64,8 @@ namespace AspRestApiTest
             app.UseAuthorization();
 
             dbContext.Database.Migrate();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

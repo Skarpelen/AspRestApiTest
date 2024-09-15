@@ -5,6 +5,7 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree.Node
 {
     using AspRestApiTest.Areas.User.Models;
     using AspRestApiTest.Data;
+    using AspRestApiTest.Features.Exceptions;
 
     [Area("User")]
     [Route("api/[area]/[controller]")]
@@ -24,14 +25,14 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree.Node
 
             if (tree is null)
             {
-                return NotFound(new { Message = $"Tree with name {treeName} not found." });
+                throw new SecureException($"Tree with name {treeName} not found.");
             }
 
             var parentNode = await _context.Nodes.FirstOrDefaultAsync(n => n.Id == parentNodeId && n.TreeId == tree.Id);
 
             if (parentNode is null)
             {
-                return BadRequest(new { Message = $"Parent node {parentNodeId} not found in tree {treeName}." });
+                throw new SecureException($"Parent node {parentNodeId} not found in tree {treeName}.");
             }
 
             var newNode = new Data.Models.Node
@@ -63,12 +64,12 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree.Node
 
             if (node is null)
             {
-                return NotFound(new { Message = $"Node {nodeId} in tree {treeName} not found." });
+                throw new SecureException($"Node {nodeId} in tree {treeName} not found.");
             }
 
             if (node.ChildNodes.Any())
             {
-                return BadRequest(new { Message = "Cannot delete a node that has children. Delete child nodes first." });
+                throw new SecureException("Cannot delete a node that has children. Delete child nodes first.");
             }
 
             _context.Nodes.Remove(node);
@@ -85,7 +86,7 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree.Node
 
             if (node is null)
             {
-                return NotFound(new { Message = $"Node {nodeId} in tree {treeName} not found." });
+                throw new SecureException($"Node {nodeId} in tree {treeName} not found.");
             }
 
             node.Name = newNodeName;

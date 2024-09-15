@@ -30,18 +30,10 @@ namespace AspRestApiTest.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BodyParameters")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<long>("EventId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ExceptionType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("QueryParameters")
                         .IsRequired()
                         .HasColumnType("text");
 

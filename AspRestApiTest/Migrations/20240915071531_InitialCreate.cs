@@ -18,8 +18,6 @@ namespace AspRestApiTest.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     EventId = table.Column<long>(type: "bigint", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    QueryParameters = table.Column<string>(type: "text", nullable: false),
-                    BodyParameters = table.Column<string>(type: "text", nullable: false),
                     StackTrace = table.Column<string>(type: "text", nullable: false),
                     ExceptionType = table.Column<string>(type: "text", nullable: false)
                 },

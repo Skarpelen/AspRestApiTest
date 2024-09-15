@@ -11,5 +11,4 @@ namespace AspRestApiTest.Areas.User.Schemas
         [Required]
         public string Search { get; set; }
     }
-
 }

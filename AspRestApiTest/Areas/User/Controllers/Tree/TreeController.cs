@@ -5,6 +5,7 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree
 {
     using AspRestApiTest.Areas.User.Models;
     using AspRestApiTest.Data;
+    using AspRestApiTest.Features.Exceptions;
 
     [Area("User")]
     [Route("api/[area]/[controller]")]
@@ -20,6 +21,11 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree
         [HttpPost("get")]
         public async Task<IActionResult> GetTree([FromQuery] string treeName)
         {
+            if (string.IsNullOrWhiteSpace(treeName))
+            {
+                throw new SecureException("Name of the tree must be filled.");
+            }
+
             var tree = await _context.Trees.FirstOrDefaultAsync(t => t.Name == treeName);
 
             if (tree is null)
@@ -50,7 +56,7 @@ namespace AspRestApiTest.Areas.User.Controllers.Tree
 
             if (existingRootNode is null)
             {
-                return NotFound(new { Message = $"Root node for tree {treeName} not found." });
+                throw new SecureException($"Root node for tree {treeName} not found.");
             }
 
             var result = await LoadFullNodeHierarchy(existingRootNode);

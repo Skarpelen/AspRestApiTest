@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AspRestApiTest.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240914091427_InitialCreate")]
+    [Migration("20240915071531_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,18 +32,10 @@ namespace AspRestApiTest.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BodyParameters")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<long>("EventId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ExceptionType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("QueryParameters")
                         .IsRequired()
                         .HasColumnType("text");
 
